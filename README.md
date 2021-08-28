@@ -19,7 +19,7 @@ If no arguments are provided, the script will return help message.
 
 ## Outputs
 
-* .\duplicates.txt 
+* ./duplicates.txt 
 
 ### Citation
 
