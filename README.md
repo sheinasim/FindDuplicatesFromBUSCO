@@ -6,6 +6,7 @@ This script is designed to be run on the full\_table.tsv output of BUSCO.
 Dependencies:
 
 * Python3 
+* Biopython
 * Python pandas package
 * Python numpy  
 
