@@ -30,3 +30,5 @@ def findDuplicates(df1, df2, duptigs):
 dupArray = findDuplicates(df_all, df_contig_lengths, duplicated)
 
 np.savetxt("duplicates.txt", dupArray, delimiter='\n', fmt='%s')
+
+print("Find Duplicates From BUSCO is finished.")
