@@ -13,19 +13,20 @@ args = parser.parse_args()
 df = pd.read_csv(args.buscoTable, sep='\t', comment='#')
 df.columns = ["Busco id", "Status", "Sequence", "Gene Start", "Gene End", "Strand", "Score", "Length", "OrthoDB url", "Description"]
 df_all = df[["Busco id", "Status", "Sequence"]]
-duplicated = df[df["Status"] == "Duplicated"]['Sequence'].unique()
+duplicated = df[df["Status"] == "Duplicated"]["Sequence"].unique()
 
-df_contig_lengths = pd.DataFrame(columns=('Sequence', 'Length'))
+df_contig_lengths = pd.DataFrame(columns=("Sequence", "Length"))
 for record in SeqIO.parse(args.fasta, "fasta"):
-    df_contig_lengths = df_contig_lengths.append({'Sequence' : record.name, 'Length' : len(record.seq)}, ignore_index = True)
+    df_contig_lengths = df_contig_lengths.append({"Sequence" : record.name, "Length" : len(record.seq)}, ignore_index = True)
 
 def findDuplicates(df1, df2, duptigs):
 	df1 = pd.merge(left = df1, right = df2)
-	df1['Length'] = df1['Length'].apply(pd.to_numeric)
-	df3 = df1.sort_values('Length', ascending=False).drop_duplicates('Busco id').sort_index()
+	df1["Length"] = df1["Length"].apply(pd.to_numeric)
+	df3 = df1.sort_values("Length", ascending=False).drop_duplicates("Busco id").sort_index()
 	keepers = df3[["Sequence", "Length"]].drop_duplicates(subset=["Sequence"])
 	df4 = df1[["Sequence", "Length"]].drop_duplicates(subset=["Sequence"])
-	df5 = df4[~df4.isin(keepers)].dropna().sort_values('Sequence')
+	df5 = df4[~df4.isin(keepers)].dropna().sort_values("Sequence")
+	df5["Length"] = df5["Length"].astype(int)
 	return df5
 
 dupdf = findDuplicates(df_all, df_contig_lengths, duplicated)
