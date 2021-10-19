@@ -23,12 +23,15 @@ def findDuplicates(df1, df2, duptigs):
 	df1 = pd.merge(left = df1, right = df2)
 	df1['Length'] = df1['Length'].apply(pd.to_numeric)
 	df3 = df1.sort_values('Length', ascending=False).drop_duplicates('Busco id').sort_index()
-	keepers = df3['Sequence'].unique()
-	duplicate_contigs = np.setdiff1d(duptigs, keepers)
-	return duplicate_contigs
+	keepers = df3[["Sequence", "Length"]].drop_duplicates(subset=["Sequence"])
+	df4 = df1[["Sequence", "Length"]].drop_duplicates(subset=["Sequence"])
+	df5 = df4[~df4.isin(keepers)].dropna().sort_values('Sequence')
+	return df5
 
-dupArray = findDuplicates(df_all, df_contig_lengths, duplicated)
+dupdf = findDuplicates(df_all, df_contig_lengths, duplicated)
 
-np.savetxt("duplicates.txt", dupArray, delimiter='\n', fmt='%s')
+outfilename = args.fasta.split(".fasta")[0] + "_duplicates.txt"
+
+dupdf.to_csv(outfilename, index=False, sep='\t')
 
 print("Find Duplicates From BUSCO is finished.")
