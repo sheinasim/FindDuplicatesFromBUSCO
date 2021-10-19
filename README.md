@@ -20,7 +20,7 @@ If no arguments are provided, the script will return help message.
 
 ## Outputs
 
-* ./duplicates.txt 
+* \{fasta prefix\}\_duplicates.txt 
 
 ### Citation
 
