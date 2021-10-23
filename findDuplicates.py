@@ -12,24 +12,29 @@ args = parser.parse_args()
 
 df = pd.read_csv(args.buscoTable, sep='\t', comment='#')
 df.columns = ["Busco id", "Status", "Sequence", "Gene Start", "Gene End", "Strand", "Score", "Length", "OrthoDB url", "Description"]
-df_all = df[["Busco id", "Status", "Sequence"]]
-duplicated = df[df["Status"] == "Duplicated"]["Sequence"].unique()
+df = df[["Busco id", "Status", "Sequence"]]
 
 df_contig_lengths = pd.DataFrame(columns=("Sequence", "Length"))
 for record in SeqIO.parse(args.fasta, "fasta"):
     df_contig_lengths = df_contig_lengths.append({"Sequence" : record.name, "Length" : len(record.seq)}, ignore_index = True)
 
-def findDuplicates(df1, df2, duptigs):
+def findDuplicates(df1, df2):
 	df1 = pd.merge(left = df1, right = df2)
 	df1["Length"] = df1["Length"].apply(pd.to_numeric)
-	df3 = df1.sort_values("Length", ascending=False).drop_duplicates("Busco id").sort_index()
-	keepers = df3[["Sequence", "Length"]].drop_duplicates(subset=["Sequence"])
-	df4 = df1[["Sequence", "Length"]].drop_duplicates(subset=["Sequence"])
-	df5 = df4[~df4.isin(keepers)].dropna().sort_values("Sequence")
-	df5["Length"] = df5["Length"].astype(int)
+	complete = df1[df1["Status"] == "Complete"]["Sequence"].unique()
+	df2 = df1[~df1["Sequence"].isin(complete)].dropna().sort_values("Busco id")
+	numberdupes = df2["Sequence"].value_counts().to_frame("Number BUSCOs")
+	numberdupes["Sequence"] = numberdupes.index
+	df3 = df2[df2["Status"] == "Duplicated"].drop_duplicates(subset=["Sequence"]).sort_values(["Busco id", "Length"])
+	buscos = df3["Busco id"]
+	chooseLongest = df3[buscos.isin(buscos[buscos.duplicated()])].sort_values(["Busco id"])
+	idx = chooseLongest.groupby(['Busco id'])['Length'].transform(max) == chooseLongest['Length']
+	keepthese = chooseLongest[idx]
+	df4 = df3[~df3["Sequence"].isin(keepthese["Sequence"])].dropna().drop_duplicates("Sequence")
+	df5 = pd.merge(left = df4[["Sequence", "Length"]], right = numberdupes, how = "left", left_on = "Sequence", right_on = "Sequence")
 	return df5
 
-dupdf = findDuplicates(df_all, df_contig_lengths, duplicated)
+dupdf = findDuplicates(df, df_contig_lengths)
 
 outfilename = args.fasta.split(".fasta")[0] + "_duplicates.txt"
 
