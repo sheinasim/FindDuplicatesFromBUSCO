@@ -61,7 +61,7 @@ def findDuplicates(df1, df2, cov):
 
 dupdf = findDuplicates(df, df_contig_lengths, coverage)
 
-prefix = args.fasta.split('/')[-1]
+prefix = args.fasta.split('/')[-1].split('.fasta')[0]
 
 outfilename = prefix + "_duplicates.txt"
 
