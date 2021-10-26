@@ -28,7 +28,7 @@ df.columns = ["busco id", "Status", "record", "Gene Start", "Gene End", "Strand"
 df = df[["busco id", "Status", "record"]]
 
 df_contig_lengths = pd.DataFrame(columns=("record", "length"))
-for record in SeqIO.parse("testdata/A_gra_thur_contigs.fasta", "fasta"):
+for record in SeqIO.parse(args.fasta, "fasta"):
     df_contig_lengths = df_contig_lengths.append({"record" : record.name, "length" : len(record.seq)}, ignore_index = True)
 
 def findDuplicates(df1, df2, cov):
