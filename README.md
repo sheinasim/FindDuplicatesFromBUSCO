@@ -7,14 +7,18 @@ Dependencies:
 
 * Python3 
 * Biopython
-* Python pandas package
+* Python pandas
 * Python numpy  
+* Python re
+* Python os
+* Python Scipy
+* Python json
 
 > export PATH=$PATH:[PATH TO FindDuplicatesFromBUSCO]  
 
 ### Usage
   
-> python findDuplicates.py \<filename or path to full\_table.tsv\> \<assembly.fasta\>
+> python findDuplicates.py \<path to Blob dir\> \<filename or path to full\_table.tsv\> \<assembly.fasta\>
 
 If no arguments are provided, the script will return help message.
 
