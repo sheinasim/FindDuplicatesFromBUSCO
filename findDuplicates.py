@@ -23,14 +23,16 @@ for filename in os.listdir(path):
                 
 coverage = pd.json_normalize(readCov, record_path=['values'])
 
-df = pd.read_csv(args.buscoTable, sep='\t', comment='#')
-df.columns = ["busco id", "Status", "record", "Gene Start", "Gene End", "Strand", "Score", "Length", "OrthoDB url", "Description"]
-df = df[["busco id", "Status", "record"]]
+df = pd.read_csv(args.buscoTable, sep='\t', comment='#', usecols=[0, 1, 2], header=None)
+df.columns = ["busco id", "Status", "record"]
+df["record"] = df["record"].apply(str)
 
 df_contig_lengths = pd.DataFrame(columns=("record", "length"))
 for record in SeqIO.parse(args.fasta, "fasta"):
     df_contig_lengths = df_contig_lengths.append({"record" : record.name, "length" : len(record.seq)}, ignore_index = True)
 
+df_contig_lengths["record"] = df_contig_lengths["record"].apply(str)
+    
 def findDuplicates(df1, df2, cov):
 	df1 = pd.merge(left = df1, right = df2)
 	df1 = pd.merge(left = df1, right = cov, left_index=True, right_index=True)
